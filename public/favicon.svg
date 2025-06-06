@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <defs>
+    <linearGradient id="bookGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#10b981;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#14b8a6;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Fundo circular -->
+  <circle cx="50" cy="50" r="45" fill="url(#bookGradient)" />
+  
+  <!-- Livro -->
+  <rect x="25" y="20" width="50" height="60" rx="3" fill="white" />
+  <rect x="25" y="20" width="25" height="60" rx="3" fill="#f0f9ff" />
+  
+  <!-- Páginas -->
+  <line x1="35" y1="30" x2="65" y2="30" stroke="#10b981" stroke-width="2" stroke-linecap="round"/>
+  <line x1="35" y1="40" x2="65" y2="40" stroke="#10b981" stroke-width="2" stroke-linecap="round"/>
+  <line x1="35" y1="50" x2="65" y2="50" stroke="#10b981" stroke-width="2" stroke-linecap="round"/>
+  <line x1="35" y1="60" x2="55" y2="60" stroke="#10b981" stroke-width="2" stroke-linecap="round"/>
+  
+  <!-- Bookmark -->
+  <rect x="65" y="20" width="8" height="25" fill="#f59e0b" />
+  <polygon points="65,45 69,40 73,45" fill="#f59e0b" />
+  
+  <!-- Número 365 -->
+  <text x="50" y="93" font-family="Arial, sans-serif" font-size="12" font-weight="bold" text-anchor="middle" fill="white">365</text>
+</svg>
