@@ -22,7 +22,8 @@ O **365Palavras** é um aplicativo web progressivo (PWA) desenvolvido para torna
 - 💾 **Persistência local** de dados (localStorage)
 - 📱 **PWA installável** - funciona como app nativo
 - 🎨 **Design moderno** voltado para adolescentes
-- 📖 **Versículos motivacionais** diários
+- 📖 **Leitura completa integrada** com ACF e NVI
+- ⚡ **Cache inteligente** para performance
 
 ## 🌐 **Demo ao Vivo**
 
@@ -56,6 +57,12 @@ O **365Palavras** é um aplicativo web progressivo (PWA) desenvolvido para torna
 - Reset de progresso
 - Informações do app
 
+### 📖 **Modal de Leitura**
+- Texto bíblico completo integrado
+- Seletor entre ACF e NVI
+- Layout moderno e responsivo
+- Sistema de capítulos e versículos
+
 ## 🛠️ **Tecnologias Utilizadas**
 
 ### **Frontend**
@@ -63,6 +70,12 @@ O **365Palavras** é um aplicativo web progressivo (PWA) desenvolvido para torna
 - **Tailwind CSS 3** - Estilização e design system
 - **Lucide React** - Biblioteca de ícones
 - **Vite** - Build tool e dev server
+
+### **Dados Bíblicos**
+- **Repository**: [365palavras-bible](https://github.com/marcos-lima-dev/365palavras-bible)
+- **CDN**: jsDelivr para carregamento rápido
+- **Traduções**: ACF (Almeida Corrigida Fiel) e NVI
+- **Cache**: Sistema inteligente de cache local
 
 ### **Funcionalidades**
 - **PWA** - Service Worker + Web App Manifest
@@ -83,7 +96,7 @@ O **365Palavras** é um aplicativo web progressivo (PWA) desenvolvido para torna
 
 ```bash
 # Clone o repositório
-git clone https://github.com/[seu-usuario]/365palavras.git
+git clone https://github.com/marcos-lima-dev/365palavras.git
 
 # Entre na pasta do projeto
 cd 365palavras
@@ -117,6 +130,7 @@ src/
 │   │   ├── ToastNotification.jsx
 │   │   ├── ProgressBar.jsx
 │   │   ├── ReadingCard.jsx
+│   │   ├── ReadingModal.jsx   # Modal de leitura completa
 │   │   └── MonthCard.jsx
 │   └── screens/               # Telas principais
 │       ├── HomeScreen.jsx
@@ -128,7 +142,8 @@ src/
 │   └── useProgress.js
 ├── data/                      # Dados estáticos
 │   ├── readingPlan.js
-│   └── achievements.js
+│   ├── achievements.js
+│   └── bibleMapping.js        # Mapeamento e carregamento da Bíblia
 ├── utils/                     # Utilitários
 │   └── dateUtils.js
 └── App.jsx                    # Componente principal
@@ -144,6 +159,8 @@ src/
 
 ### **2. Lendo a Bíblia**
 - Toque nos checkboxes para marcar leituras
+- **Clique no ícone de livro** para ler o texto completo
+- Escolha entre **ACF** ou **NVI**
 - Acompanhe seu progresso em tempo real
 - Troque de mês quando quiser
 
@@ -169,11 +186,13 @@ src/
 - ⚡ **Lazy loading** de componentes
 - 🗜️ **Bundle otimizado** com Vite
 - 📱 **Responsivo** em todos os dispositivos
+- 💾 **Cache inteligente** para textos bíblicos
 
 ### **Dados**
 - 💾 **Persistência local** (não precisa de backend)
 - 🔄 **Sincronização** entre abas do navegador
 - 📊 **Cálculos em tempo real** de progresso
+- 📖 **66 livros** da Bíblia integrados
 
 ### **PWA Features**
 - 📱 **Instalável** como app nativo
@@ -194,6 +213,16 @@ src/
 - **Gradientes**: Múltiplas direções e cores
 - **Animações**: Smooth transitions (300ms)
 - **Typography**: Font weights variados para hierarquia
+
+## 📖 **Dados Bíblicos**
+
+O app utiliza textos bíblicos do repositório [365palavras-bible](https://github.com/marcos-lima-dev/365palavras-bible):
+
+- **📚 66 livros** completos da Bíblia
+- **🔤 2 traduções**: ACF (Almeida Corrigida Fiel) e NVI
+- **⚡ CDN**: Distribuído via jsDelivr para carregamento rápido
+- **🗂️ Formato**: JSON estruturado por capítulos e versículos
+- **📱 Otimizado**: Para dispositivos móveis
 
 ## 🤝 **Contribuição**
 
@@ -229,9 +258,9 @@ Contribuições são muito bem-vindas! Para contribuir:
 ## 👨‍💻 **Autor**
 
 **Marcos de Sousa Lima**
-- 🌐 GitHub: [@[seu-usuario]](https://github.com/marcos-lima-dev)
-- 📧 Email: [seu-email]
-- 💼 LinkedIn: [seu-linkedin]
+- 🌐 GitHub: [@marcos-lima-dev](https://github.com/marcos-lima-dev)
+- 📧 Email: marcos.lima.dev@gmail.com
+- 💼 LinkedIn: [marcos-lima-dev](https://linkedin.com/in/marcos-lima-dev)
 
 ## 📄 **Licença**
 
@@ -243,6 +272,7 @@ Este projeto está licenciado sob a Licença MIT - veja o arquivo [LICENSE](LICE
 - 👥 **Adolescentes** que testaram e deram feedback
 - 🎨 **Lucide Icons** pela biblioteca de ícones
 - ⚡ **Vite & React Team** pelas ferramentas incríveis
+- 🔗 **jsDelivr** pelo CDN gratuito e confiável
 
 ---
 

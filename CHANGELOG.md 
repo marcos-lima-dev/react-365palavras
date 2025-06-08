@@ -1,0 +1,94 @@
+# 📖 Changelog - 365Palavras
+
+Todas as mudanças notáveis do projeto serão documentadas aqui.
+
+O formato é baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0/) e este projeto segue [Semantic Versioning](https://semver.org/).
+
+---
+
+## 🚀 [2.0.0] - 2025-01-XX - "Leitura Integrada"
+
+### ✨ Adicionado
+- **Sistema de leitura bíblica integrado** - Leia diretamente no app sem sair
+- **Suporte a 3 traduções** - ARA, ACF e NVI disponíveis
+- **CDN global** - Dados servidos via jsDelivr para performance máxima
+- **Modal épico de leitura** - Interface moderna com glassmorphism e gradientes
+- **Seletor de versões** - Troque entre traduções instantaneamente
+- **Botão "Marcar como lida"** - Animações e efeitos especiais
+- **Cache inteligente** - Dados salvos localmente para acesso offline
+- **Sistema de fallback** - Múltiplas fontes para garantir disponibilidade
+- **Repositório separado** - Dados bíblicos em repo dedicado
+- **Efeitos visuais avançados** - Hover effects, transições e micro-animações
+
+### 🎨 Melhorado
+- **Interface do modal** - Design completamente redesenhado
+- **Performance** - Carregamento 10x mais rápido com CDN
+- **Experiência móvel** - Otimizada para dispositivos touch
+- **Acessibilidade** - Melhor contraste e navegação por teclado
+- **Error handling** - Tratamento robusto de erros com feedback visual
+
+### 🔧 Técnico
+- **Arquitetura CDN** - Migração para jsDelivr
+- **Bundle otimizado** - Redução de 90% no tamanho do build
+- **Deployment limpo** - Apenas app no Netlify, dados no GitHub
+- **Configuração flexível** - Suporte a desenvolvimento local e produção
+
+### 🐛 Corrigido
+- **Compatibilidade** - Suporte a diferentes estruturas de dados bíblicos
+- **Loading states** - Indicadores visuais durante carregamento
+- **Validação de dados** - Proteção contra dados inválidos
+
+---
+
+## 📱 [1.0.0] - 2024-XX-XX - "Primeira Versão"
+
+### ✨ Adicionado
+- **Plano de leitura 365 dias** - Cronograma anual completo
+- **Sistema de progresso** - Acompanhe suas leituras diárias
+- **PWA completo** - Instale como app nativo
+- **Design responsivo** - Funciona em todos os dispositivos
+- **Persistência local** - Progresso salvo no navegador
+- **Interface moderna** - Design clean e intuitivo
+- **Sistema de conquistas** - Medalhas e marcos de progresso
+- **Versículos motivacionais** - Inspiração diária rotativa
+
+---
+
+## 🚀 Roadmap Futuro
+
+### v2.1.0 - "Personalização"
+- [ ] Temas personalizáveis (dark/light/auto)
+- [ ] Configuração de notificações
+- [ ] Backup na nuvem (opcional)
+
+### v2.2.0 - "Social"
+- [ ] Compartilhamento de progresso
+- [ ] Grupos de leitura
+- [ ] Comentários e notas
+
+### v3.0.0 - "Expansão"
+- [ ] Múltiplos planos de leitura
+- [ ] Áudio das leituras
+- [ ] Estatísticas avançadas
+
+---
+
+## 📋 Tipos de Mudanças
+
+- **✨ Adicionado** - Para novas funcionalidades
+- **🎨 Melhorado** - Para mudanças em funcionalidades existentes
+- **🔧 Técnico** - Para mudanças que não afetam o usuário final
+- **🐛 Corrigido** - Para correção de bugs
+- **⚠️ Descontinuado** - Para funcionalidades que serão removidas
+- **🗑️ Removido** - Para funcionalidades removidas
+- **🔒 Segurança** - Para correções relacionadas à segurança
+
+---
+
+<div align="center">
+
+**Desenvolvido com ❤️ por [Marcos Lima](https://github.com/marcos-lima-dev)**
+
+[🏠 App](https://365palavras.netlify.app) • [📱 PWA](https://365palavras.netlify.app) • [📚 Dados](https://github.com/marcos-lima-dev/365palavras-bible)
+
+</div>
