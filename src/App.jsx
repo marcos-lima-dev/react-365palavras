@@ -8,6 +8,7 @@ import { getCurrentMonthInfo } from './utils/dateUtils'
 // Importar componentes
 import BottomNavigation from './components/ui/BottomNavigation'
 import ToastNotification from './components/ui/ToastNotification'
+import ShareAchievementModal from './components/ui/ShareAchievementModal'
 import HomeScreen from './components/screens/HomeScreen'
 import PlanScreen from './components/screens/PlanScreen'
 import ProgressScreen from './components/screens/ProgressScreen'
@@ -19,6 +20,10 @@ function App() {
   const [showToast, setShowToast] = useState(null)
   const [animatingIndex, setAnimatingIndex] = useState(null)
   const [selectedMonth, setSelectedMonth] = useState(null)
+  
+  // 🎉 NOVO: Estado para modal de compartilhamento
+  const [showShareModal, setShowShareModal] = useState(false)
+  const [shareData, setShareData] = useState(null)
   
   // Mês ativo persistente
   const [activeMonth, setActiveMonth] = useState(() => {
@@ -49,7 +54,29 @@ function App() {
     return { completed, total, percentage }
   }
 
-  // Handler para toggle de leitura com animação
+  // 🎯 FUNÇÃO PARA DETECTAR CONQUISTAS DE LEITURA
+  const checkForReadingAchievement = (readingIndex, monthProgress) => {
+    const reading = readings[readingIndex]
+    if (!reading) return false
+
+    // Verificar se completou uma leitura completa (ex: "Gênesis 1-3")
+    const isMultiChapterReading = reading.includes('-')
+    
+    if (isMultiChapterReading) {
+      // Para leituras multi-capítulo, verificar se completou
+      const newCompleted = monthProgress.filter(Boolean).length
+      const newPercentage = Math.round((newCompleted / readings.length) * 100)
+      
+      // Mostrar conquista a cada 25% ou leitura importante
+      if (newPercentage >= 25 && (newPercentage % 25 === 0 || newCompleted === 1)) {
+        return true
+      }
+    }
+    
+    return false
+  }
+
+  // Handler para toggle de leitura com animação E verificação de conquista
   const handleToggleReading = (index) => {
     const wasCompleted = progress[index] || false
     
@@ -59,11 +86,31 @@ function App() {
     toggleReading(index)
     
     if (!wasCompleted) {
+      // Calcular novo progresso após marcar como lido
+      const newProgress = [...progress]
+      newProgress[index] = true
+      
+      // Verificar se deve mostrar modal de conquista
+      if (checkForReadingAchievement(index, newProgress)) {
+        const reading = readings[index]
+        const newCompleted = newProgress.filter(Boolean).length
+        
+        setTimeout(() => {
+          setShareData({
+            reading,
+            completed: newCompleted,
+            total: readings.length,
+            version: 'ACF' // ou pegar da configuração
+          })
+          setShowShareModal(true)
+        }, 1000) // Mostrar após a animação
+      }
+      
       setTimeout(() => checkForNewAchievements(), 500)
     }
   }
 
-  // Verificar novas conquistas
+  // Verificar novas conquistas (sistema existente)
   const checkForNewAchievements = () => {
     const newStats = { ...stats, totalCompleted: stats.totalCompleted + 1 }
     const newAchievements = getUnlockedAchievements(newStats.totalCompleted, newStats.streak)
@@ -138,7 +185,7 @@ function App() {
         )
       
       default:
-        return <HomeScreen {...homeProps} />
+        return null
     }
   }
 
@@ -150,6 +197,21 @@ function App() {
         achievement={showToast} 
         onClose={() => setShowToast(null)} 
       />
+
+      {/* 🎉 NOVO: Modal de Compartilhamento */}
+      {shareData && (
+        <ShareAchievementModal
+          isOpen={showShareModal}
+          onClose={() => {
+            setShowShareModal(false)
+            setShareData(null)
+          }}
+          reading={shareData.reading}
+          completed={shareData.completed}
+          total={shareData.total}
+          version={shareData.version}
+        />
+      )}
 
       {/* Conteúdo Principal */}
       <div className="max-w-md mx-auto p-4">

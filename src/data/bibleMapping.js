@@ -1,49 +1,31 @@
-/**
- * Mapeamento entre nomes das leituras e arquivos JSON da Bíblia
- * Usando ACF (Almeida Corrigida Fiel) do repositório marcos-lima-dev/365palavras-bible
- */
-
-// Base URL do seu repositório via jsDelivr
-const BIBLE_BASE_URL = 'https://cdn.jsdelivr.net/gh/marcos-lima-dev/365palavras-bible@main'
-const DEFAULT_VERSION = 'ACF' // Usando ACF como padrão
-
 export const bookMapping = {
-  // Pentateuco
   'Gênesis': 'genesis',
   'Êxodo': 'exodo', 
   'Levítico': 'levitico',
   'Números': 'numeros',
   'Deuteronômio': 'deuteronomio',
-  
-  // Históricos
   'Josué': 'josue',
   'Juízes': 'juizes',
   'Rute': 'rute',
-  '1 Samuel': '1 samuel',
-  '2 Samuel': '2 samuel',
-  '1 Reis': '1 reis',
-  '2 Reis': '2 reis',
-  '1 Crônicas': '1 cronicas',
-  '2 Crônicas': '2 cronicas',
+  '1 Samuel': '1 samuel',      // ✅ COM ESPAÇO
+  '2 Samuel': '2 samuel',      // ✅ COM ESPAÇO
+  '1 Reis': '1 reis',          // ✅ COM ESPAÇO
+  '2 Reis': '2 reis',          // ✅ COM ESPAÇO
+  '1 Crônicas': '1 cronicas',  // ✅ COM ESPAÇO - CORRIGIDO!
+  '2 Crônicas': '2 cronicas',  // ✅ COM ESPAÇO - CORRIGIDO!
   'Esdras': 'esdras',
   'Neemias': 'neemias',
   'Ester': 'ester',
-  
-  // Poéticos
   'Jó': 'jo',
   'Salmos': 'salmos',
   'Provérbios': 'proverbios',
   'Eclesiastes': 'eclesiastes',
   'Cantares': 'cantares',
-  
-  // Profetas Maiores
   'Isaías': 'isaias',
   'Jeremias': 'jeremias',
   'Lamentações': 'lamentacoes',
   'Ezequiel': 'ezequiel',
   'Daniel': 'daniel',
-  
-  // Profetas Menores
   'Oséias': 'oseias',
   'Joel': 'joel',
   'Amós': 'amos',
@@ -56,162 +38,207 @@ export const bookMapping = {
   'Ageu': 'ageu',
   'Zacarias': 'zacarias',
   'Malaquias': 'malaquias',
-  
-  // Novo Testamento
   'Mateus': 'mateus',
   'Marcos': 'marcos',
   'Lucas': 'lucas',
   'João': 'joao',
   'Atos': 'atos',
   'Romanos': 'romanos',
-  '1 Coríntios': '1 corintios',
-  '2 Coríntios': '2 corintios',
+  '1 Coríntios': '1 corintios',        // ✅ COM ESPAÇO
+  '2 Coríntios': '2 corintios',        // ✅ COM ESPAÇO
   'Gálatas': 'galatas',
   'Efésios': 'efesios',
   'Filipenses': 'filipenses',
   'Colossenses': 'colossenses',
-  '1 Tessalonicenses': '1 tessalonicenses',
-  '2 Tessalonicenses': '2 tessalonicenses',
-  '1 Timóteo': '1 timoteo',
-  '2 Timóteo': '2 timoteo',
+  '1 Tessalonicenses': '1 tessalonicenses', // ✅ COM ESPAÇO
+  '2 Tessalonicenses': '2 tessalonicenses', // ✅ COM ESPAÇO
+  '1 Timóteo': '1 timoteo',            // ✅ COM ESPAÇO
+  '2 Timóteo': '2 timoteo',            // ✅ COM ESPAÇO
   'Tito': 'tito',
   'Filemom': 'filemom',
   'Hebreus': 'hebreus',
   'Tiago': 'tiago',
-  '1 Pedro': '1 pedro',
-  '2 Pedro': '2 pedro',
-  '1 João': '1 joao',
-  '2 João': '2 joao',
-  '3 João': '3 joao',
+  '1 Pedro': '1 pedro',                // ✅ COM ESPAÇO
+  '2 Pedro': '2 pedro',                // ✅ COM ESPAÇO
+  '1 João': '1 joao',                  // ✅ COM ESPAÇO
+  '2 João': '2 joao',                  // ✅ COM ESPAÇO
+  '3 João': '3 joao',                  // ✅ COM ESPAÇO
   'Judas': 'judas',
   'Apocalipse': 'apocalipse'
 }
 
-/**
- * Função para extrair livro e capítulos de uma leitura
- * Ex: "Gênesis 1-3" → { book: "genesis", chapters: [1, 2, 3] }
- */
-export function parseReading(reading) {
-  // Regex para capturar: "Livro X-Y" ou "Livro X"
-  const match = reading.match(/^(.+?)\s+(\d+)(?:-(\d+))?$/)
-  
-  if (!match) {
-    console.warn(`Não foi possível parsear a leitura: ${reading}`)
-    return null
-  }
-  
-  const bookName = match[1].trim()
-  const startChapter = parseInt(match[2])
-  const endChapter = match[3] ? parseInt(match[3]) : startChapter
-  
-  const bookFile = bookMapping[bookName]
-  if (!bookFile) {
-    console.warn(`Livro não encontrado no mapeamento: ${bookName}`)
-    return null
-  }
-  
-  // Gerar array de capítulos
-  const chapters = []
-  for (let i = startChapter; i <= endChapter; i++) {
-    chapters.push(i)
-  }
-  
-  return {
-    bookName,
-    bookFile,
-    chapters,
-    displayName: reading
-  }
-}
-
-/**
- * Cache para evitar múltiplas requisições do mesmo livro
- */
 const bibleCache = new Map()
 
-/**
- * Função para carregar um livro da Bíblia do seu repositório
- */
-export async function loadBibleBook(bookFile, version = DEFAULT_VERSION) {
+function adaptBookStructure(bookData, bookName) {
+  console.log(`🔧 Adaptando estrutura para: ${bookName}`)
+  
+  if (bookData.chapters && Array.isArray(bookData.chapters)) {
+    console.log(`✅ Estrutura padrão: ${bookData.chapters.length} capítulos`)
+    return bookData
+  }
+  
+  if (Array.isArray(bookData) && bookData.length > 0 && typeof bookData[0] === 'object') {
+    console.log('🔧 Estrutura ACF detectada - convertendo...')
+    
+    const chapters = bookData.map((chapterObj, index) => {
+      const chapterKeys = Object.keys(chapterObj)
+      if (chapterKeys.length === 0) return []
+      
+      const chapterKey = chapterKeys[0]
+      const versesObj = chapterObj[chapterKey]
+      
+      const verseKeys = Object.keys(versesObj).sort((a, b) => parseInt(a) - parseInt(b))
+      const versesArray = verseKeys.map(key => versesObj[key])
+      
+      console.log(`📖 Capítulo ${index + 1}: ${versesArray.length} versículos`)
+      return versesArray
+    })
+    
+    console.log(`✅ ACF convertido: ${chapters.length} capítulos`)
+    return { chapters }
+  }
+  
+  if (Array.isArray(bookData) && bookData.length > 0 && Array.isArray(bookData[0])) {
+    console.log('✅ Array direto de capítulos detectado')
+    return { chapters: bookData }
+  }
+  
+  const numericKeys = Object.keys(bookData).filter(key => !isNaN(key)).sort((a, b) => parseInt(a) - parseInt(b))
+  if (numericKeys.length > 0) {
+    console.log('🔧 Convertendo objeto com chaves numéricas')
+    const chapters = numericKeys.map(key => {
+      const chapterData = bookData[key]
+      
+      if (typeof chapterData === 'object' && !Array.isArray(chapterData)) {
+        const verseKeys = Object.keys(chapterData).sort((a, b) => parseInt(a) - parseInt(b))
+        return verseKeys.map(vKey => chapterData[vKey])
+      }
+      
+      return Array.isArray(chapterData) ? chapterData : [chapterData]
+    })
+    return { chapters }
+  }
+  
+  console.warn('❌ Estrutura não reconhecida:', bookData)
+  throw new Error(`Estrutura de arquivo não reconhecida para ${bookName}`)
+}
+
+export async function loadBibleBook(bookFile, version = 'ACF') {
   const cacheKey = `${version}-${bookFile}`
   
-  // Verificar cache primeiro
   if (bibleCache.has(cacheKey)) {
-    console.log(`📚 Cache hit para ${bookFile} (${version})`)
+    console.log(`📋 Usando cache para: ${cacheKey}`)
     return bibleCache.get(cacheKey)
   }
   
-  // Construir URL do seu repositório
-  const url = `${BIBLE_BASE_URL}/${version}/${bookFile}.json`
-  
   try {
-    console.log(`🔄 Carregando ${bookFile} (${version}) de: ${url}`)
+    const rawUrl = `https://raw.githubusercontent.com/marcos-lima-dev/365palavras-bible/main/${version}/${bookFile}.json`
+    console.log(`🌐 Carregando: ${rawUrl}`)
+    const response = await fetch(rawUrl)
     
-    const response = await fetch(url)
+    console.log(`📡 Status: ${response.status}`)
     
     if (!response.ok) {
-      throw new Error(`Erro HTTP ${response.status}: ${response.statusText}`)
+      throw new Error(`Erro HTTP ${response.status} para ${bookFile}`)
     }
     
+    console.log(`✅ Arquivo carregado: ${bookFile}.json`)
     const rawData = await response.json()
-    console.log(`📊 Dados brutos recebidos:`, typeof rawData, Array.isArray(rawData))
     
-    // Detectar e adaptar estrutura dos dados
-    let bookData = null
+    const adaptedData = adaptBookStructure(rawData, bookFile)
     
-    // Estrutura 1: Array com objeto dentro
-    if (Array.isArray(rawData) && rawData.length > 0 && rawData[0].chapters) {
-      console.log('📖 Estrutura detectada: Array com chapters')
-      bookData = rawData[0]
-    }
-    // Estrutura 2: Objeto direto com chapters
-    else if (rawData.chapters) {
-      console.log('📖 Estrutura detectada: Objeto com chapters')
-      bookData = rawData
-    }
-    // Estrutura 3: Capítulos diretos (chaves numéricas)
-    else if (rawData['1']) {
-      console.log('📖 Estrutura detectada: Capítulos diretos')
-      // Converter para formato esperado
-      const chapters = []
-      const chapterKeys = Object.keys(rawData).filter(key => !isNaN(key)).sort((a, b) => parseInt(a) - parseInt(b))
-      
-      for (const chapterKey of chapterKeys) {
-        const chapterObj = {}
-        chapterObj[chapterKey] = rawData[chapterKey]
-        chapters.push(chapterObj)
-      }
-      
-      bookData = { chapters }
-    }
-    else {
-      console.error('❌ Estrutura não reconhecida:', Object.keys(rawData))
-      throw new Error(`Estrutura de dados não reconhecida para ${bookFile}`)
-    }
+    bibleCache.set(cacheKey, adaptedData)
+    console.log(`💾 Salvo no cache: ${cacheKey}`)
     
-    // Validar estrutura final
-    if (!bookData || !bookData.chapters || !Array.isArray(bookData.chapters)) {
-      console.error('❌ Estrutura final inválida:', bookData)
-      throw new Error(`Estrutura de dados inválida para ${bookFile}`)
-    }
-    
-    console.log(`✅ ${bookFile} carregado: ${bookData.chapters.length} capítulos`)
-    
-    // Salvar no cache
-    bibleCache.set(cacheKey, bookData)
-    
-    return bookData
+    return adaptedData
   } catch (error) {
-    console.error(`❌ Erro ao carregar livro ${bookFile} (${version}):`, error)
-    throw new Error(`Falha ao carregar ${bookFile}: ${error.message}`)
+    console.error(`❌ Erro ao carregar ${bookFile}:`, error)
+    throw error
   }
 }
 
-/**
- * Função principal para carregar texto de uma leitura
- * Adaptada para a estrutura do seu repositório
- */
-export async function loadReadingText(reading, version = DEFAULT_VERSION) {
+export function parseReading(reading) {
+  console.log(`🔍 Parseando leitura: ${reading}`)
+  
+  const verseMatch = reading.match(/^(.+?)\s+(\d+):(\d+)-(\d+)$/)
+  
+  if (verseMatch) {
+    console.log(`📖 Detectado formato de versículos: ${reading}`)
+    const bookName = verseMatch[1].trim()
+    const chapter = parseInt(verseMatch[2])
+    const startVerse = parseInt(verseMatch[3])
+    const endVerse = parseInt(verseMatch[4])
+    
+    const bookFile = bookMapping[bookName]
+    if (!bookFile) {
+      console.warn(`Livro não encontrado: ${bookName}`)
+      return null
+    }
+    
+    return {
+      bookName,
+      bookFile,
+      chapters: [chapter],
+      verses: {
+        [chapter]: [startVerse, endVerse]
+      },
+      displayName: reading,
+      isVerseRange: true
+    }
+  }
+  
+  const chapterMatch = reading.match(/^(.+?)\s+(\d+)(?:-(\d+))?$/)
+  
+  if (chapterMatch) {
+    const bookName = chapterMatch[1].trim()
+    const startChapter = parseInt(chapterMatch[2])
+    const endChapter = chapterMatch[3] ? parseInt(chapterMatch[3]) : startChapter
+    
+    const bookFile = bookMapping[bookName]
+    if (!bookFile) {
+      console.warn(`Livro não encontrado: ${bookName}`)
+      return null
+    }
+    
+    const chapters = []
+    for (let i = startChapter; i <= endChapter; i++) {
+      chapters.push(i)
+    }
+    
+    console.log(`📚 Capítulos solicitados: ${chapters.join(', ')}`)
+    
+    return {
+      bookName,
+      bookFile,
+      chapters,
+      displayName: reading,
+      isVerseRange: false
+    }
+  }
+  
+  const singleBookMatch = reading.match(/^(.+)$/)
+  
+  if (singleBookMatch) {
+    const bookName = singleBookMatch[1].trim()
+    const bookFile = bookMapping[bookName]
+    
+    if (bookFile) {
+      console.log(`📚 Livro único: ${bookName}`)
+      return {
+        bookName,
+        bookFile,
+        chapters: [1],
+        displayName: reading,
+        isVerseRange: false
+      }
+    }
+  }
+  
+  console.warn(`Não foi possível parsear: ${reading}`)
+  return null
+}
+
+export async function loadReadingText(reading, version = 'ACF') {
   const parsed = parseReading(reading)
   
   if (!parsed) {
@@ -219,117 +246,48 @@ export async function loadReadingText(reading, version = DEFAULT_VERSION) {
   }
   
   try {
-    // Carregar o livro do seu repositório
     const bookData = await loadBibleBook(parsed.bookFile, version)
     
-    // Extrair os capítulos necessários
+    console.log(`📖 Livro carregado: ${bookData.chapters.length} capítulos disponíveis`)
+    
     const chaptersText = parsed.chapters.map(chapterNumber => {
-      const chapterIndex = chapterNumber - 1 // Array é 0-based
-      const chapterData = bookData.chapters[chapterIndex]
+      const chapterIndex = chapterNumber - 1
+      const allVerses = bookData.chapters[chapterIndex]
       
-      if (!chapterData) {
-        console.warn(`Capítulo ${chapterNumber} não encontrado em ${parsed.bookName}`)
+      if (!allVerses) {
+        console.warn(`❌ Capítulo ${chapterNumber} não encontrado em ${parsed.bookName}`)
         return null
       }
       
-      // Tentar diferentes formatos de chave para o capítulo
-      const chapterKey = chapterNumber.toString()
-      const chapterKeyNum = chapterNumber
+      console.log(`✅ Capítulo ${chapterNumber}: ${allVerses.length} versículos`)
       
-      let verses = null
+      let verses = allVerses
       
-      // Tentativa 1: chave como string "25"
-      if (chapterData[chapterKey]) {
-        verses = chapterData[chapterKey]
-        console.log(`📖 Encontrou capítulo ${chapterNumber} com chave string`)
-      }
-      // Tentativa 2: chave como número 25
-      else if (chapterData[chapterKeyNum]) {
-        verses = chapterData[chapterKeyNum]
-        console.log(`📖 Encontrou capítulo ${chapterNumber} com chave numérica`)
-      }
-      // Tentativa 3: primeira chave disponível (fallback)
-      else {
-        const availableKeys = Object.keys(chapterData)
-        console.log(`⚠️ Chaves disponíveis no capítulo ${chapterIndex}:`, availableKeys)
+      if (parsed.isVerseRange && parsed.verses[chapterNumber]) {
+        const [startVerse, endVerse] = parsed.verses[chapterNumber]
+        console.log(`🎯 Extraindo versículos ${startVerse}-${endVerse}`)
         
-        if (availableKeys.length > 0) {
-          const firstKey = availableKeys[0]
-          verses = chapterData[firstKey]
-          console.log(`🔄 Usando primeira chave disponível: ${firstKey}`)
-        }
-      }
-      
-      if (!verses) {
-        console.warn(`Versículos não encontrados para capítulo ${chapterNumber} em ${parsed.bookName}`)
-        console.log(`🔍 Estrutura do capítulo ${chapterIndex}:`, chapterData)
-        return null
-      }
-      
-      // NOVA CORREÇÃO: Se verses ainda é um objeto com uma chave numérica, pegar o conteúdo
-      if (typeof verses === 'object' && !Array.isArray(verses)) {
-        const verseKeys = Object.keys(verses)
-        console.log(`🔍 Chaves dentro dos versículos:`, verseKeys)
+        verses = allVerses.slice(startVerse - 1, endVerse)
         
-        // Se tem uma chave que é igual ao número do capítulo, é estrutura aninhada
-        if (verses[chapterKey]) {
-          console.log(`🎯 Estrutura aninhada detectada! Acessando verses["${chapterKey}"]`)
-          verses = verses[chapterKey]
-        }
+        console.log(`✅ Extraídos ${verses.length} versículos`)
       }
-      
-      // Debug: verificar tipo dos versículos FINAL
-      console.log(`🔍 Tipo FINAL dos versículos para cap ${chapterNumber}:`, typeof verses, Object.keys(verses || {}).slice(0, 5))
-      
-      // Converter versículos para array de strings
-      let versesArray = []
-      
-      if (Array.isArray(verses)) {
-        // Se já é array, usar direto
-        versesArray = verses
-        console.log(`📋 Versículos já em array: ${versesArray.length} items`)
-      } else if (typeof verses === 'object' && verses !== null) {
-        // CORREÇÃO: verses é o objeto completo com versículos numerados
-        // Ex: { "1": "texto1", "2": "texto2", "3": "texto3" }
-        const verseKeys = Object.keys(verses).filter(key => !isNaN(key)).sort((a, b) => parseInt(a) - parseInt(b))
-        versesArray = verseKeys.map(key => verses[key])
-        console.log(`🔢 Convertido de objeto: ${verseKeys.length} versículos (chaves: ${verseKeys.slice(0, 5).join(', ')}...)`)
-        
-        // Debug seguro sem substring
-        if (versesArray.length > 0) {
-          console.log(`📖 Primeiro versículo:`, typeof versesArray[0], versesArray[0])
-        }
-      } else {
-        console.error(`❌ Formato de versículos não reconhecido:`, typeof verses, verses)
-        return null
-      }
-      
-      // Garantir que todos os itens são strings (não deveria ser necessário agora)
-      versesArray = versesArray.map((verse, index) => {
-        if (typeof verse === 'string') {
-          return verse
-        } else {
-          console.warn(`⚠️ Versículo ${index + 1} não é string:`, typeof verse, verse)
-          return String(verse)
-        }
-      })
-      
-      console.log(`✅ Capítulo ${chapterNumber}: ${versesArray.length} versículos processados`)
-      console.log(`🔍 Tipos dos versículos:`, versesArray.map(v => typeof v).slice(0, 3))
       
       return {
         chapterNumber,
-        verses: versesArray,
-        totalVerses: versesArray.length
+        verses,
+        totalVerses: verses.length,
+        isPartial: parsed.isVerseRange && parsed.verses[chapterNumber] ? true : false,
+        verseRange: parsed.isVerseRange && parsed.verses[chapterNumber] ? parsed.verses[chapterNumber] : null
       }
-    }).filter(Boolean) // Remove capítulos nulos
+    }).filter(Boolean)
+    
+    console.log(`🎉 Sucesso: ${chaptersText.length} capítulos carregados`)
     
     return {
       bookName: parsed.bookName,
       displayName: parsed.displayName,
       chapters: chaptersText,
-      version: version,
-      source: 'marcos-lima-dev/365palavras-bible'
+      version
     }
   } catch (error) {
     console.error(`❌ Erro ao carregar texto da leitura ${reading}:`, error)
@@ -337,47 +295,8 @@ export async function loadReadingText(reading, version = DEFAULT_VERSION) {
   }
 }
 
-/**
- * Função para limpar cache (útil para desenvolvimento)
- */
-export function clearBibleCache() {
-  bibleCache.clear()
-  console.log('🗑️ Cache da Bíblia limpo')
-}
-
-/**
- * Função para ver status do cache
- */
-export function getCacheStatus() {
-  const cacheEntries = Array.from(bibleCache.keys())
-  return {
-    size: bibleCache.size,
-    entries: cacheEntries,
-    sizeMB: (JSON.stringify(Array.from(bibleCache.values())).length / 1024 / 1024).toFixed(2)
-  }
-}
-
-/**
- * Versões disponíveis no seu repositório
- */
 export const availableVersions = {
   'ACF': 'Almeida Corrigida Fiel',
+  'ARA': 'Almeida Revista e Atualizada',
   'NVI': 'Nova Versão Internacional'
-  // ARA removida conforme solicitado
-}
-
-/**
- * Lista apenas as versões que funcionam (sem ARA)
- */
-export const workingVersions = ['ACF', 'NVI']
-
-/**
- * Função para trocar versão padrão
- */
-export function setDefaultVersion(version) {
-  if (!availableVersions[version]) {
-    throw new Error(`Versão ${version} não disponível. Versões: ${Object.keys(availableVersions).join(', ')}`)
-  }
-  DEFAULT_VERSION = version
-  console.log(`📖 Versão padrão alterada para: ${version}`)
 }

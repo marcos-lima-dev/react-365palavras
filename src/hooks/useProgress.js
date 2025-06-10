@@ -130,11 +130,11 @@ function calculateStreak(progress) {
  */
 function calculateAchievements(totalCompleted, streak) {
   return {
-    firstStep: totalCompleted >= 1,      // Primeiro Passo
-    oneWeek: streak >= 7,                // Uma Semana
-    perseverance: totalCompleted >= 30,  // Perseverança
-    dedicated: totalCompleted >= 100,    // Dedicado
-    faithful: totalCompleted >= 200,     // Leitor Fiel
-    completist: totalCompleted >= 365    // Completista
+    firstStep: totalCompleted >= 1,      // Primeiro Passo - 1 leitura
+    oneWeek: streak >= 7,                // Uma Semana - 7 dias seguidos
+    perseverance: totalCompleted >= 30,  // Perseverança - 30 leituras
+    dedicated: totalCompleted >= 100,    // Dedicado - 100 leituras
+    faithful: totalCompleted >= 200,     // Leitor Fiel - 200 leituras
+    completist: totalCompleted >= 364    // Completista - TODAS as leituras do plano (364)
   }
 }

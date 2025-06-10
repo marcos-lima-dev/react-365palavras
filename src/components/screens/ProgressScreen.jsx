@@ -25,7 +25,7 @@ const ProgressScreen = ({ stats }) => {
           </div>
           <div className="text-3xl font-black text-emerald-600 mb-2">{stats.totalCompleted}</div>
           <p className="text-gray-600 font-medium">Leituras Completas</p>
-          <p className="text-xs text-gray-500 mt-1">de 365 no ano</p>
+          <p className="text-xs text-gray-500 mt-1">de {stats.totalDays} no ano</p>
         </div>
 
         <div className="bg-white/70 backdrop-blur-xl rounded-3xl p-6 shadow-2xl border border-white/50 text-center">
@@ -46,7 +46,7 @@ const ProgressScreen = ({ stats }) => {
           </div>
           <div>
             <h3 className="font-black text-gray-800 text-lg">Progresso Anual</h3>
-            <p className="text-gray-600 text-sm">Sua jornada de 365 dias</p>
+            <p className="text-gray-600 text-sm">Sua jornada de {stats.totalDays} dias</p>
           </div>
         </div>
 
@@ -63,7 +63,7 @@ const ProgressScreen = ({ stats }) => {
 
         <div className="flex justify-between text-sm text-gray-600 mt-4">
           <span>{stats.totalCompleted} leituras</span>
-          <span>{365 - stats.totalCompleted} restantes</span>
+          <span>{stats.daysRemaining} restantes</span>
         </div>
       </div>
 
@@ -83,28 +83,81 @@ const ProgressScreen = ({ stats }) => {
           {achievements.map((achievement) => {
             const isUnlocked = stats.achievements[achievement.id] || false
             
+            // Animações específicas para cada conquista
+            const getAnimationClass = (achievementId, isUnlocked) => {
+              if (!isUnlocked) return ''
+              
+              switch(achievementId) {
+                case 'firstStep':
+                  return 'animate-bounce'
+                case 'oneWeek':
+                  return 'animate-pulse'
+                case 'perseverance':
+                  return 'animate-pulse hover:animate-bounce'
+                case 'dedicated':
+                  return 'animate-pulse hover:animate-spin'
+                case 'faithful':
+                  return 'animate-pulse hover:animate-ping'
+                case 'completist':
+                  return 'animate-bounce hover:animate-spin'
+                default:
+                  return 'animate-pulse'
+              }
+            }
+            
+            // Efeitos especiais para Completista
+            const isCompletist = achievement.id === 'completist'
+            
             return (
               <div 
                 key={achievement.id}
-                className={`p-6 rounded-3xl text-center transition-all duration-300 ${
+                className={`relative overflow-hidden p-6 rounded-3xl text-center transition-all duration-500 ${
                   isUnlocked 
-                    ? 'bg-gradient-to-r ' + achievement.color + ' text-white shadow-2xl scale-105' 
-                    : 'bg-gray-100 text-gray-400'
-                }`}
+                    ? `bg-gradient-to-r ${achievement.color} text-white shadow-2xl scale-105 hover:scale-110` 
+                    : 'bg-gray-100 text-gray-400 hover:bg-gray-200'
+                } ${isCompletist && isUnlocked ? 'ring-4 ring-yellow-400 ring-opacity-75' : ''}`}
               >
-                <div className="text-4xl mb-3">{achievement.icon}</div>
+                {/* Efeito de brilho para Completista */}
+                {isCompletist && isUnlocked && (
+                  <>
+                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -skew-x-12 animate-pulse"></div>
+                    <div className="absolute top-0 left-0 w-full h-full">
+                      <div className="absolute top-2 left-2 text-yellow-300 animate-bounce text-xs" style={{animationDelay: '0.1s'}}>✨</div>
+                      <div className="absolute top-3 right-3 text-yellow-300 animate-bounce text-xs" style={{animationDelay: '0.3s'}}>⭐</div>
+                      <div className="absolute bottom-2 left-3 text-yellow-300 animate-bounce text-xs" style={{animationDelay: '0.5s'}}>🎉</div>
+                      <div className="absolute bottom-3 right-2 text-yellow-300 animate-bounce text-xs" style={{animationDelay: '0.7s'}}>🏆</div>
+                    </div>
+                  </>
+                )}
+                
+                {/* Ícone com animação específica */}
+                <div className={`text-4xl mb-3 ${getAnimationClass(achievement.id, isUnlocked)} ${
+                  isCompletist && isUnlocked ? 'filter drop-shadow-lg' : ''
+                }`}>
+                  {achievement.icon}
+                </div>
+                
                 <h4 className="font-black text-lg mb-2">{achievement.name}</h4>
                 <p className="text-sm opacity-90">{achievement.description}</p>
                 
                 {isUnlocked && (
-                  <div className="mt-3 text-xs font-bold opacity-80">
-                    ✨ DESBLOQUEADO!
+                  <div className={`mt-3 text-xs font-bold opacity-80 ${
+                    isCompletist ? 'animate-pulse text-yellow-200' : ''
+                  }`}>
+                    {isCompletist ? '🎯 PLANO COMPLETO! 🎯' : '✨ DESBLOQUEADO!'}
                   </div>
                 )}
                 
                 {!isUnlocked && (
                   <div className="mt-3 text-xs">
                     {achievement.type === 'total' ? `${achievement.requirement} leituras` : `${achievement.requirement} dias seguidos`}
+                  </div>
+                )}
+                
+                {/* Efeito especial de ÉPICO para Completista */}
+                {isCompletist && isUnlocked && (
+                  <div className="absolute -top-2 -right-2 w-8 h-8 bg-yellow-400 rounded-full flex items-center justify-center animate-ping">
+                    <span className="text-xs">👑</span>
                   </div>
                 )}
               </div>
