@@ -1,40 +1,12 @@
 import React, { useState, useEffect } from 'react'
-import { X, BookOpen, Loader, AlertCircle, Check, Clock, Hash, BadgeCheck } from 'lucide-react'
-import { loadReadingText, availableVersions } from '../../data/bibleMapping'
+import { X, BookOpen, Loader, AlertCircle, Check, Star, Heart, CircleX, CircleCheck } from 'lucide-react'
+import { loadReadingText } from '../../data/bibleMapping'
 
 const ReadingModal = ({ reading, isOpen, onClose, onMarkAsRead }) => {
   const [bibleText, setBibleText] = useState(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
-  const [version, setVersion] = useState('ACF') // Padrão ACF
-
-  // Esconder scroll do body quando modal abrir
-  useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = 'hidden'
-      // Esconder barra de navegação
-      const bottomNav = document.querySelector('[class*="bottom"]')
-      if (bottomNav) {
-        bottomNav.style.display = 'none'
-      }
-    } else {
-      document.body.style.overflow = 'unset'
-      // Mostrar barra de navegação
-      const bottomNav = document.querySelector('[class*="bottom"]')
-      if (bottomNav) {
-        bottomNav.style.display = 'block'
-      }
-    }
-    
-    // Cleanup
-    return () => {
-      document.body.style.overflow = 'unset'
-      const bottomNav = document.querySelector('[class*="bottom"]')
-      if (bottomNav) {
-        bottomNav.style.display = 'block'
-      }
-    }
-  }, [isOpen])
+  const [version, setVersion] = useState('ACF')
 
   // Carregar texto quando modal abrir
   useEffect(() => {
@@ -49,12 +21,11 @@ const ReadingModal = ({ reading, isOpen, onClose, onMarkAsRead }) => {
     setBibleText(null)
     
     try {
-      console.log(`📖 Carregando: ${reading} (${version})`)
       const textData = await loadReadingText(reading, version)
       setBibleText(textData)
-      console.log(`✅ Sucesso: ${textData.chapters.length} capítulos carregados`)
+      console.log(`✅ Sucesso: ${reading} carregado`)
     } catch (err) {
-      setError(`Erro ao carregar ${reading}: ${err.message}`)
+      setError(err.message)
       console.error('❌ Erro ao carregar texto bíblico:', err)
     } finally {
       setLoading(false)
@@ -68,260 +39,247 @@ const ReadingModal = ({ reading, isOpen, onClose, onMarkAsRead }) => {
     onClose()
   }
 
-  const handleVersionChange = (newVersion) => {
-    console.log(`🔄 Trocando versão: ${version} → ${newVersion}`)
-    setVersion(newVersion)
-  }
-
-  // Calcular estatísticas
-  const getStats = () => {
-    if (!bibleText) return { chapters: 0, verses: 0, readTime: 0 }
-    
-    const totalVerses = bibleText.chapters.reduce((sum, chapter) => sum + chapter.totalVerses, 0)
-    const readTime = Math.ceil(totalVerses * 0.25) // ~15 segundos por versículo
-    
-    return {
-      chapters: bibleText.chapters.length,
-      verses: totalVerses,
-      readTime
-    }
-  }
-
-  const stats = getStats()
-
   if (!isOpen) return null
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-6" style={{zIndex: 999999}}>
-      <div className="bg-white rounded-3xl shadow-2xl max-w-2xl w-full h-[80vh] max-h-[600px] overflow-hidden flex flex-col">
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-10 flex items-center justify-center p-4 pb-40">
+      <div className="bg-white rounded-3xl shadow-2xl max-w-4xl w-full max-h-[75vh] overflow-hidden flex flex-col">
         
-        {/* Header Otimizado */}
-        <div className="bg-gradient-to-r from-emerald-500 to-teal-500 p-6 text-white">
-          <div className="flex items-center justify-between">
-            {/* Logo maior e mais destaque */}
-            <div className="w-14 h-14 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center shadow-lg">
-              <BookOpen className="text-white" size={28} />
+        {/* Header fixo */}
+        <div className={`flex items-center justify-between p-6 border-b border-gray-200 flex-shrink-0 ${
+          bibleText?.type === 'special' 
+            ? 'bg-gradient-to-r from-purple-50 to-pink-50' 
+            : 'bg-gradient-to-r from-emerald-50 to-teal-50'
+        }`}>
+          <div className="flex items-center gap-3">
+            <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
+              bibleText?.type === 'special'
+                ? 'bg-gradient-to-r from-purple-500 to-pink-500'
+                : 'bg-gradient-to-r from-emerald-500 to-teal-500'
+            }`}>
+              {bibleText?.type === 'special' ? (
+                <Heart className="text-white" size={20} />
+              ) : (
+                <BookOpen className="text-white" size={20} />
+              )}
             </div>
+            <div>
+              <h3 className="text-lg font-bold text-gray-800">{reading}</h3>
+              <p className="text-sm text-gray-600">
+                {bibleText?.type === 'special' ? 'Leitura Especial' : 'Leitura Bíblica'}
+              </p>
+            </div>
+          </div>
+          
+          <div className="flex items-center gap-3">
+            {/* Seletor de versão */}
+            <select 
+              value={version}
+              onChange={(e) => setVersion(e.target.value)}
+              className="px-3 py-2 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+            >
+              <option value="ACF">ACF</option>
+              <option value="ARA">ARA</option>
+              <option value="NVI">NVI</option>
+            </select>
             
-            {/* Seletor no centro com mais destaque - SÓ ACF e NVI */}
-            <div className="flex-1 flex justify-center">
-              <select 
-                value={version}
-                onChange={(e) => handleVersionChange(e.target.value)}
-                className="px-6 py-3 rounded-2xl bg-white/25 backdrop-blur-sm border border-white/40 text-white text-base font-bold focus:outline-none focus:ring-2 focus:ring-white/60 appearance-none cursor-pointer shadow-lg hover:bg-white/30 transition-all"
-                style={{ backgroundImage: "url(\"data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23ffffff' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m6 8 4 4 4-4'/%3e%3c/svg%3e\")", backgroundPosition: "right 12px center", backgroundRepeat: "no-repeat", backgroundSize: "20px" }}
-              >
-                <option value="ACF" className="text-gray-800">📖 ACF</option>
-                <option value="ARA" className="text-gray-800">📖 ARA</option>
-                <option value="NVI" className="text-gray-800">📖 NVI</option>
-              </select>
-            </div>
-              
-            {/* Botão fechar com gradient no hover */}
             <button 
               onClick={onClose}
-              className="w-14 h-14 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center transition-all duration-300 shadow-lg hover:bg-gradient-to-r hover:from-red-500 hover:to-pink-500 hover:scale-110 group"
+              className="w-8 h-8 bg-gray-100 hover:bg-gray-200 rounded-lg flex items-center justify-center transition-colors"
             >
-              <X size={20} className="text-white group-hover:scale-110 transition-transform" />
+              <X size={16} className="text-gray-600" />
             </button>
           </div>
         </div>
 
-        {/* Conteúdo - SCROLL RESTAURADO */}
-        <div className="flex-1 overflow-y-auto min-h-0">
-          {loading && (
-            <div className="flex flex-col items-center justify-center py-16 text-gray-500">
-              <Loader className="animate-spin mb-4" size={40} />
-              <p className="text-xl font-medium">Carregando texto bíblico...</p>
-              <p className="text-sm">Aguarde um momento</p>
-            </div>
-          )}
-
-          {error && (
-            <div className="flex flex-col items-center justify-center py-16 text-red-500">
-              <AlertCircle className="mb-4" size={40} />
-              <p className="text-xl font-medium">Erro ao carregar</p>
-              <p className="text-sm text-center mb-6 max-w-md">{error}</p>
-              <button 
-                onClick={loadBibleData}
-                className="px-6 py-3 bg-red-500 text-white rounded-xl hover:bg-red-600 transition-colors font-medium"
-              >
-                Tentar novamente
-              </button>
-            </div>
-          )}
-
-          {bibleText && (
-            <div>
-              {/* Título Limpo */}
-              <div className="p-6 bg-white border-b border-gray-100">
-                <h1 className="text-3xl font-black text-gray-800 text-center">
-                  {bibleText.displayName}
-                </h1>
+        {/* Conteúdo com rolagem independente */}
+        <div className="flex-1 overflow-y-auto">
+          <div className="p-6">
+            {loading && (
+              <div className="flex flex-col items-center justify-center py-12 text-gray-500">
+                <Loader className="animate-spin mb-4" size={32} />
+                <p className="text-lg font-medium">Carregando texto bíblico...</p>
+                <p className="text-sm">Aguarde um momento</p>
               </div>
+            )}
 
-              {/* Capítulos */}
-              <div className="p-6 space-y-6">
-                {bibleText.chapters.map((chapter, chapterIndex) => (
-                  <div key={chapterIndex} className="bg-white rounded-2xl border-2 border-gray-100 overflow-hidden shadow-sm hover:shadow-md transition-shadow">
-                    {/* Header do capítulo */}
-                    <div className="bg-gradient-to-r from-emerald-500 to-teal-500 p-4">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-emerald-600 font-bold text-lg">
-                          {chapter.chapterNumber}
-                        </div>
-                        <div className="text-white">
-                          <h3 className="text-lg font-bold">
-                            Capítulo {chapter.chapterNumber}
-                            {chapter.isPartial && chapter.verseRange && (
-                              <span className="text-emerald-200 text-sm ml-2">
-                                (versículos {chapter.verseRange[0]}-{chapter.verseRange[1]})
-                              </span>
-                            )}
-                          </h3>
-                          <p className="text-emerald-100 text-sm">
-                            {chapter.totalVerses} versículos
-                            {chapter.isPartial ? ' (parcial)' : ''}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
+            {error && (
+              <div className="flex flex-col items-center justify-center py-12 text-red-500">
+                <AlertCircle className="mb-4" size={32} />
+                <p className="text-lg font-medium">Erro ao carregar</p>
+                <p className="text-sm text-center mb-4">{error}</p>
+                <button 
+                  onClick={loadBibleData}
+                  className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
+                >
+                  Tentar novamente
+                </button>
+              </div>
+            )}
 
-                    {/* Versículos */}
-                    <div className="p-6 space-y-4">
-                      {chapter.verses.map((verse, verseIndex) => {
-                        // Calcular número do versículo correto para ranges parciais
-                        const verseNumber = chapter.isPartial && chapter.verseRange 
-                          ? chapter.verseRange[0] + verseIndex 
-                          : verseIndex + 1
-                          
-                        return (
-                          <div key={verseIndex} className="flex gap-4 group">
-                            <div className="flex-shrink-0 w-8 h-8 bg-emerald-100 text-emerald-600 rounded-lg flex items-center justify-center text-sm font-bold group-hover:bg-emerald-200 transition-colors">
-                              {verseNumber}
+            {bibleText && (
+              <>
+                <div className="prose prose-lg max-w-none">
+                  {/* Título */}
+                  <div className="mb-6 text-center">
+                    <h2 className="text-2xl font-bold text-gray-800 mb-2">
+                      {bibleText.displayName}
+                    </h2>
+                    <p className="text-gray-600">
+                      {bibleText.version} - {
+                        bibleText.type === 'special' ? 'Leitura Temática' : 
+                        bibleText.type === 'multiple' ? 'Múltiplos Livros' : 
+                        bibleText.bookName
+                      }
+                    </p>
+                    {bibleText.type === 'multiple' && (
+                      <p className="text-sm text-emerald-600 font-medium">
+                        {bibleText.bookCount} livro(s) • {bibleText.chapters?.length || 0} capítulo(s)
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Leitura Especial (múltiplas referências) */}
+                  {bibleText.type === 'special' && bibleText.references && (
+                    <div className="space-y-6">
+                      {bibleText.references.map((ref, refIndex) => (
+                        <div key={refIndex} className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-2xl p-6">
+                          {/* Cabeçalho da referência */}
+                          <div className="flex items-center gap-3 mb-4">
+                            <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg flex items-center justify-center">
+                              <Star className="text-white" size={16} />
                             </div>
-                            <p className="text-gray-700 leading-relaxed flex-1 group-hover:text-gray-900 transition-colors">
-                              {verse}
-                            </p>
+                            <div>
+                              <h3 className="text-lg font-bold text-gray-800">
+                                {ref.displayName}
+                              </h3>
+                              <p className="text-sm text-gray-600">{ref.bookName}</p>
+                            </div>
                           </div>
-                        )
-                      })}
-                    </div>
-                  </div>
-                ))}
 
-                {/* Botões ÉPICOS após o texto - REORGANIZADO */}
-                <div className="relative mt-8 mb-24">
-                  {/* Separador decorativo */}
-                  <div className="flex items-center justify-center mb-6">
-                    <div className="flex-1 h-px bg-gradient-to-r from-transparent via-gray-300 to-transparent"></div>
-                    <div className="mx-4 w-8 h-8 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-full flex items-center justify-center shadow-lg">
-                      <BookOpen size={16} className="text-white" />
+                          {/* Versículos */}
+                          <div className="space-y-3">
+                            {ref.verses.map((verse, verseIndex) => (
+                              <div key={verseIndex} className="flex gap-3">
+                                <span className="text-purple-600 font-bold text-sm min-w-[24px] mt-1">
+                                  {ref.startVerse ? ref.startVerse + verseIndex : verseIndex + 1}
+                                </span>
+                                <p className="text-gray-700 leading-relaxed flex-1 italic">
+                                  "{verse}"
+                                </p>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      ))}
                     </div>
-                    <div className="flex-1 h-px bg-gradient-to-r from-transparent via-gray-300 to-transparent"></div>
-                  </div>
+                  )}
 
-                  {/* Card dos botões ÉPICO - COMPACTO */}
-                  <div className="bg-gradient-to-r from-emerald-50 via-teal-50 to-cyan-50 rounded-3xl p-6 border-2 border-emerald-100 shadow-xl backdrop-blur-sm">
-                    
-                    {/* Header do card - COMPACTO */}
-                    <div className="text-center mb-4">
-                      <div className="w-12 h-12 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-lg animate-pulse-slow">
-                        <BookOpen className="text-white" size={20} />
-                      </div>
-                      <h3 className="text-lg font-black text-gray-800 mb-1">Leitura Completa!</h3>
-                      <p className="text-gray-600 text-xs">
-                        ✨ {stats.chapters} capítulo(s) • {stats.verses} versículos • Versão {version} 🎉
-                      </p>
-                    </div>
+                  {/* Leitura Normal ou Múltipla (capítulos sequenciais) */}
+                  {(bibleText.type === 'normal' || bibleText.type === 'multiple') && bibleText.chapters && (
+                    <div className="space-y-8">
+                      {bibleText.chapters.map((chapter, chapterIndex) => (
+                        <div key={chapterIndex} className="mb-8">
+                          {/* Cabeçalho do capítulo com sticky */}
+                          <div className="flex items-center gap-3 mb-6 sticky top-0 bg-white/90 backdrop-blur-sm py-2 rounded-lg">
+                            <div className="w-10 h-10 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-xl flex items-center justify-center text-white font-bold shadow-lg">
+                              {chapter.chapterNumber}
+                            </div>
+                            <div>
+                              <h3 className="text-xl font-bold text-gray-800">
+                                {/* Se é leitura múltipla, mostrar nome do livro */}
+                                {bibleText.type === 'multiple' && chapter.bookName ? (
+                                  <>
+                                    {chapter.bookName} - Capítulo {chapter.chapterNumber}
+                                    {/* REMOVIDO: (livro completo) */}
+                                  </>
+                                ) : (
+                                  <>
+                                    {bibleText.bookName} - Capítulo {chapter.chapterNumber}
+                                  </>
+                                )}
+                              </h3>
+                              {chapter.isPartial && chapter.verseRange && (
+                                <p className="text-purple-600 font-medium text-sm">
+                                  Versículos {chapter.verseRange[0]}-{chapter.verseRange[1]}
+                                </p>
+                              )}
+                              <p className="text-gray-500 text-sm">{chapter.verses.length} versículos</p>
+                            </div>
+                          </div>
 
-                    {/* Estatísticas visuais - COMPACTAS */}
-                    <div className="grid grid-cols-3 gap-3 mb-4">
-                      <div className="text-center p-3 bg-white/70 rounded-xl shadow-md">
-                        <div className="text-xl font-black text-emerald-600">{stats.verses}</div>
-                        <p className="text-xs text-gray-600 font-medium">Versículos</p>
-                      </div>
-                      <div className="text-center p-3 bg-white/70 rounded-xl shadow-md">
-                        <div className="text-xl font-black text-teal-600">{stats.chapters}</div>
-                        <p className="text-xs text-gray-600 font-medium">Capítulos</p>
-                      </div>
-                      <div className="text-center p-3 bg-white/70 rounded-xl shadow-md">
-                        <div className="text-xl font-black text-cyan-600">100%</div>
-                        <p className="text-xs text-gray-600 font-medium">Completa</p>
-                      </div>
+                          {/* Versículos */}
+                          <div className="space-y-3 pl-2">
+                            {chapter.verses.map((verse, verseIndex) => (
+                              <div key={verseIndex} className="flex gap-4 group">
+                                <span className="text-emerald-600 font-bold text-sm min-w-[32px] mt-1 bg-emerald-50 rounded-lg px-2 py-1 flex-shrink-0">
+                                  {chapter.isPartial && chapter.verseRange ? 
+                                    chapter.verseRange[0] + verseIndex : 
+                                    verseIndex + 1
+                                  }
+                                </span>
+                                <p className="text-gray-700 leading-relaxed flex-1 group-hover:text-gray-900 transition-colors">
+                                  {verse}
+                                </p>
+                              </div>
+                            ))}
+                          </div>
+                          
+                          {/* Separador entre capítulos (se não for o último) */}
+                          {chapterIndex < bibleText.chapters.length - 1 && (
+                            <div className="flex items-center gap-4 my-8">
+                              <div className="flex-1 h-px bg-gradient-to-r from-transparent via-gray-300 to-transparent"></div>
+                              <div className="text-gray-400 text-sm font-medium">• • •</div>
+                              <div className="flex-1 h-px bg-gradient-to-r from-transparent via-gray-300 to-transparent"></div>
+                            </div>
+                          )}
+                        </div>
+                      ))}
                     </div>
+                  )}
+                </div>
 
-                    {/* Mensagem motivacional PRIMEIRO */}
-                    <div className="mb-6 p-4 bg-gradient-to-r from-purple-100 via-pink-50 to-purple-100 rounded-2xl border-2 border-purple-200 text-center shadow-lg">
-                      <div className="flex items-center justify-center gap-2 mb-2">
-                        <div className="text-lg animate-pulse">📖</div>
-                        <h4 className="text-base font-black text-purple-800">Palavra de Hoje</h4>
-                        <div className="text-lg animate-pulse">✨</div>
-                      </div>
-                      <p className="text-sm font-semibold text-purple-700 leading-relaxed mb-2 italic">
-                        "Lâmpada para os meus pés é tua palavra e luz para o meu caminho."
-                      </p>
-                      <p className="text-xs font-bold text-purple-600">
-                        — Salmos 119:105 💜
-                      </p>
-                      <div className="mt-2 flex justify-center gap-1">
-                        <span className="text-sm animate-bounce" style={{animationDelay: '0.1s'}}>🙏</span>
-                        <span className="text-sm animate-bounce" style={{animationDelay: '0.3s'}}>⭐</span>
-                        <span className="text-sm animate-bounce" style={{animationDelay: '0.5s'}}>🌟</span>
-                      </div>
-                    </div>
-                    
-                    {/* Botões ÉPICOS - SÓ ÍCONES! 🔥 */}
-                    <div className="flex justify-center gap-6 mb-6">
-                      {/* Botão FECHAR - Só X com gradiente vermelho e rotação */}
+                {/* Botões Circulares Minimalistas com Tooltips - APÓS TODO O TEXTO */}
+                <div className="mt-8 mb-6">
+                  <div className="flex justify-center gap-6">
+                    {/* Botão FECHAR - Círculo Vermelho com Tooltip */}
+                    <div className="relative group">
                       <button 
                         onClick={onClose}
-                        className="group relative overflow-hidden w-16 h-16 bg-gradient-to-r from-red-500 via-pink-500 to-red-600 rounded-2xl transition-all duration-500 hover:scale-110 hover:rotate-12 shadow-2xl hover:shadow-red-500/50"
+                        className="w-16 h-16 bg-gradient-to-br from-red-400 to-red-600 rounded-full shadow-lg hover:shadow-xl transform hover:scale-105 active:scale-95 transition-all duration-300 flex items-center justify-center hover:from-red-500 hover:to-red-700"
                       >
-                        {/* Efeito de brilho no hover */}
-                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
-                        
-                        <div className="relative flex items-center justify-center w-full h-full">
-                          <X size={28} className="text-white font-bold group-hover:rotate-90 transition-transform duration-500" />
-                        </div>
+                        <CircleX size={28} className="text-white group-hover:rotate-180 transition-transform duration-300" />
                       </button>
                       
-                      {/* Botão COMPLETEI - Só badge-check épico */}
+                      {/* Tooltip Fechar */}
+                      <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-1 bg-gray-800 text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap">
+                        Fechar
+                        <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-800"></div>
+                      </div>
+                    </div>
+                    
+                    {/* Botão MARCAR COMO LIDO - Círculo Verde com Tooltip */}
+                    <div className="relative group">
                       <button 
                         onClick={handleMarkAsRead}
-                        className="group relative overflow-hidden w-16 h-16 bg-gradient-to-r from-green-500 via-emerald-500 to-teal-500 rounded-2xl hover:scale-110 transition-all duration-500 shadow-2xl hover:shadow-emerald-500/50 hover:-rotate-6"
+                        className="w-16 h-16 bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-full shadow-lg hover:shadow-xl transform hover:scale-105 active:scale-95 transition-all duration-300 flex items-center justify-center hover:from-emerald-500 hover:to-emerald-700"
                       >
-                        {/* Efeito de brilho animado SUPER */}
-                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
-                        
-                        {/* Partículas flutuantes */}
-                        <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-                          <div className="absolute top-1 left-2 text-white/60 animate-bounce text-xs" style={{animationDelay: '0.1s'}}>✨</div>
-                          <div className="absolute top-2 right-1 text-white/60 animate-bounce text-xs" style={{animationDelay: '0.3s'}}>⭐</div>
-                          <div className="absolute bottom-1 left-3 text-white/60 animate-bounce text-xs" style={{animationDelay: '0.5s'}}>🎉</div>
-                        </div>
-                        
-                        {/* Só o ícone badge-check */}
-                        <div className="relative flex items-center justify-center w-full h-full">
-                          <BadgeCheck size={28} className="text-white group-hover:scale-125 transition-transform duration-300" />
-                        </div>
+                        <CircleCheck size={28} className="text-white group-hover:rotate-180 transition-transform duration-300" />
                       </button>
-                    </div>
-
-                    {/* Indicador visual de "FIM" com padding extra */}
-                    <div className="text-center pb-6">
-                      <div className="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 rounded-full text-gray-500 text-sm">
-                        <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
-                        <span className="font-medium">Fim da leitura</span>
-                        <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
+                      
+                      {/* Tooltip Lido */}
+                      <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-1 bg-gray-800 text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap">
+                        Lido
+                        <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-800"></div>
                       </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            </div>
-          )}
+              </>
+            )}
+          </div>
         </div>
+
       </div>
     </div>
   )

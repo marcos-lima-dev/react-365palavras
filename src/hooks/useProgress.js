@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import { useReadingProgress } from './useLocalStorage'
-import { readingPlan, getTotalDays, getCurrentMonth } from '../data/readingPlan'
+import { readingPlan, getMonthReadings, getTotalDays, getCurrentMonth } from '../data/readingPlan'
 
 /**
  * Hook para calcular estatísticas de progresso
@@ -27,7 +27,7 @@ export function useProgress() {
     // Mês atual
     const currentMonth = getCurrentMonth()
     const currentMonthProgress = progress[currentMonth] || []
-    const currentMonthReadings = readingPlan[currentMonth] || []
+    const currentMonthReadings = getMonthReadings(currentMonth)
     
     // Estatísticas do mês atual
     const monthCompleted = currentMonthProgress.filter(Boolean).length
@@ -35,7 +35,7 @@ export function useProgress() {
     const monthPercentage = monthTotal > 0 ? Math.round((monthCompleted / monthTotal) * 100) : 0
     
     // Calcular sequência (streak) - dias consecutivos
-    const streak = calculateStreak(progress)
+    const streak = calculateStreak(progress, currentMonth)
     
     // Calcular dias restantes no ano
     const daysRemaining = totalDays - totalCompleted
@@ -72,7 +72,7 @@ export function useMonthProgress(month) {
   
   const monthKey = month.toLowerCase()
   const monthProgress = progress[monthKey] || []
-  const monthReadings = readingPlan[monthKey] || []
+  const monthReadings = getMonthReadings(monthKey)
   
   // Função para marcar/desmarcar uma leitura
   const toggleReading = (dayIndex) => {
@@ -104,13 +104,12 @@ export function useMonthProgress(month) {
 }
 
 /**
- * Calcular sequência de dias consecutivos
+ * 🔥 Calcular sequência de dias consecutivos
  */
-function calculateStreak(progress) {
+function calculateStreak(progress, currentMonth) {
   // Esta é uma implementação simplificada
   // Em uma versão mais avançada, consideraríamos as datas reais
   let streak = 0
-  const currentMonth = getCurrentMonth()
   const monthProgress = progress[currentMonth] || []
   
   // Contar dias consecutivos do final para o início
@@ -126,15 +125,15 @@ function calculateStreak(progress) {
 }
 
 /**
- * Calcular conquistas baseadas no progresso
+ * 🏆 Calcular conquistas baseadas no progresso
  */
 function calculateAchievements(totalCompleted, streak) {
   return {
-    firstStep: totalCompleted >= 1,      // Primeiro Passo - 1 leitura
-    oneWeek: streak >= 7,                // Uma Semana - 7 dias seguidos
-    perseverance: totalCompleted >= 30,  // Perseverança - 30 leituras
-    dedicated: totalCompleted >= 100,    // Dedicado - 100 leituras
-    faithful: totalCompleted >= 200,     // Leitor Fiel - 200 leituras
-    completist: totalCompleted >= 364    // Completista - TODAS as leituras do plano (364)
+    firstStep: totalCompleted >= 1,      // Primeiro Passo
+    oneWeek: streak >= 7,                // Uma Semana
+    perseverance: totalCompleted >= 30,  // Perseverança
+    dedicated: totalCompleted >= 100,    // Dedicado
+    faithful: totalCompleted >= 200,     // Leitor Fiel
+    completist: totalCompleted >= 365    // Completista
   }
 }
